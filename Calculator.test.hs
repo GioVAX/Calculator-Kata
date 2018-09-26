@@ -1,14 +1,32 @@
-import Test.HUnit
-import Test.HUnit.Plus
-import Calculator
+module Calculator.Tests where 
 
-calculatorTests = test [
-        "empty string -> 0" ~: "not 0" ~: 0 ~=? add "",
-        "one number -> the number" ~: "single number" ~: 2 ~=? add "2",
-        "two numbers -> sum of numbers" ~: "two numbers" ~: 3 ~=? add "2,1",
-        "many numbers -> sum of numbers" ~: "many numbers" ~: 10 ~=? add "2,1,4,3",
-        "Numbers can be separated with newlines" ~: "use newlines" ~: 3 ~=? add "2\n1",
-        "Numbers can be separated also with newlines" ~: "use newlines" ~: 10 ~=? add "2\n1, 4\n3",
-        "Delimiter can be customised" ~: "custom delimiter" ~: 3 ~=? add "//;\n1;2",
-        "Negative number throws exception" ~: "negative number" ~: 
-    ]
+import Test.Hspec
+import Calculator
+import Control.Exception.Base
+
+main :: IO ()
+main = hspec $ do
+    describe "Calculator add" $ do
+        it "returns 0 for empty string" $
+            add "" `shouldBe` 0
+
+        it "returns the number for one number input" $
+            add "5" `shouldBe` 5
+
+        it "returns sum of the input numbers" $
+            add "5,2" `shouldBe` 7
+
+        it "returns the sum of multiple input numbers" $
+            add "2,1,4,3" `shouldBe` 10
+
+        it "returns the sum of input numbers also separated with newlines" $
+            add "2\n1,4,5\n3" `shouldBe` 15
+
+        it "allows to customise the delimiter" $
+            add "//;\n1;2" `shouldBe` 3
+
+        it "allows to customise the delimiter and use newline to separate numbers" $
+            add "//;\n1;2\n4\n6;2" `shouldBe` 15
+
+        it "throws exception when given negative number" $
+            evaluate (add "2,-3, 4") `shouldThrow` anyException
