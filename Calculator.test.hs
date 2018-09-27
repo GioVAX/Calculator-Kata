@@ -36,3 +36,6 @@ main = hspec $ do
 
         it "ignores numbers greater than 1000 but accepts 1000" $
             add "2, 1000, 3" `shouldBe` 1005
+        
+        it "allows long delimiters" $
+            add "//[***]\n1***2***3" `shouldBe` 6

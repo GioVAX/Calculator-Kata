@@ -6,18 +6,22 @@ import Text.Regex.Posix
 
 add :: String -> Int
 add "" = 0
+add ('/':'/':'[':rest) =
+    let (_,_,s,[delims]) = ('[':rest) =~ "\\[(.*)]\n" :: (String, String, String,[String])
+    in add' delims s (splitOn)
 add ('/':'/':rest) = 
     let (_,_,s,[delims]) = rest =~ "(.)\n" :: (String, String, String,[String])
-    in add' delims s
-add s = add' "," s
+    in add' ('\n':delims) s (splitOneOf)
+add s = add' "\n," s (splitOneOf)
 
 
-add' :: String -> String -> Int
-add' delims string
+add' :: String -> String -> (String -> String -> [String]) -> Int
+add' delims string splitter
     | null negatives = sum $ filter (\n -> n < 1001 ) numbers
     | otherwise = raiseError negatives
     where 
-        numbers = map read $ splitOneOf (delims ++ "\n") string
+        strings = splitter delims string
+        numbers = map read strings
         negatives = [n | n <- numbers, n < 0]
 
 raiseError :: [Int] -> Int
