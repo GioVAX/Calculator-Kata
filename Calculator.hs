@@ -13,11 +13,11 @@ add s = add' "," s
 
 
 add' :: String -> String -> Int
-add' delims s
-    | null negatives = sum numbers
+add' delims string
+    | null negatives = sum $ filter (\n -> n < 1001 ) numbers
     | otherwise = raiseError negatives
     where 
-        numbers = map read $ splitOneOf (delims ++ "\n") s
+        numbers = map read $ splitOneOf (delims ++ "\n") string
         negatives = [n | n <- numbers, n < 0]
 
 raiseError :: [Int] -> Int

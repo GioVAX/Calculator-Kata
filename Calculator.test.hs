@@ -30,3 +30,9 @@ main = hspec $ do
 
         it "throws exception when given negative number" $
             evaluate (add "2,-3, 4") `shouldThrow` anyException
+
+        it "ignores numbers greater than 1000" $
+            add "2, 1001, 3" `shouldBe` 5
+
+        it "ignores numbers greater than 1000 but accepts 1000" $
+            add "2, 1000, 3" `shouldBe` 1005
