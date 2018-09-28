@@ -2,17 +2,19 @@ module Calculator(add) where
 
 import Data.List
 import Data.List.Split
-import Text.Regex.Posix
+import Text.Regex.PCRE
 
 add :: String -> Int
-add s
-    | s == "" = 0
-    | (_,_,values,[delims]) <- s =~ "//\\[(.*)]\n" :: (String, String, String,[String]) =
-    -- let (_,_,s,[delims]) = ('[':rest) =~ "((?:\\[(.*)])+)\n" :: (String, String, String,[String])
-        add' $ splitOn delims values
-    | (_,_,values,[delims]) <- s =~ "//(.)\n" :: (String, String, String,[String]) =  
+add input
+    | input == "" = 0
+    | "//[" `isPrefixOf` input = 
+        let delims = extractDelims "\\[(.*?)]" input
+        -- delims = extractDelims "(\\[(.*?)])+?" input --> Requires change to extractDelims (!! 2)
+            values = (splitOn "\n" input) !! 1
+        in add' $ splitOn (head delims) values
+    | (_,_,values,[delims]) <- input =~ "//(.)\n" :: (String, String, String,[String]) =  
         add' $ splitOneOf ('\n':delims) values
-    | otherwise = add' $ splitOneOf "\n," s
+    | otherwise = add' $ splitOneOf "\n," input
 
 
 add' :: [String] -> Int
@@ -28,12 +30,21 @@ raiseError numbers =
     let string = intercalate ", " $ map show numbers
     in error $ "negatives not allowed ==> " ++ string
 
--- Prelude> "//,\n1,2\n3" =~ "//(.)\n" :: (String,String,String,[String])
--- ("", "//,\n", "1,2\n3", [","])
+extractDelims :: String -> String -> [String]
+extractDelims regex string =
+    map (\i -> i !! 1)  (string =~ regex :: [[String]])
 
--- Prelude> ('[':"*as][%ss]\n1**2%%3") =~ "(\\[(.*)])\n" :: (String, String, String,[String])
--- ("","[*as][%ss]\n","1**2%%3",["[*as][%ss]","*as][%ss"])
 
--- Prelude> "*as][%ss][123]\n1**2%%3" =~ "((.*))]\n" :: (String, String, String,[String])
--- ("","*as][%ss][123]\n","1**2%%3",["*as][%ss][123","*as][%ss][123"])
--- "*as][%ss][123" can be split on "][" to get the list of delimiters
+-- map (\i -> i !! 1)  ("//[***]\n1***2***3" =~ "\\[(.*?)]" :: [[String]])
+-- ["***"]
+
+-- map (\i -> i !! 1)  ("//[***]\n1***2***3" =~ "(\\[(.*?)])+?" :: [[String]])
+-- ["[***]"]
+
+
+
+-- map (\i -> i !! 2)  ("//[***]\n1***2***3" =~ "(\\[(.*?)])+?" :: [[String]])
+-- ["***"]
+
+-- map (\i -> i !! 2)  ("//[***][$$$]\n1***2***3" =~ "(\\[(.*?)])+?" :: [[String]])
+-- ["***","$$$"]
