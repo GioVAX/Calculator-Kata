@@ -8,9 +8,8 @@ add :: String -> Int
 add input
     | input == "" = 0
     | "//[" `isPrefixOf` input = 
-        let delims = extractDelims "\\[(.*?)]" input
-        -- delims = extractDelims "(\\[(.*?)])+?" input --> Requires change to extractDelims (!! 2)
-            values = (splitOn "\n" input) !! 1
+        let delims = extractLongDelims "(\\[(.*?)])+?" input
+            values = (lines input) !! 1
         in add' $ splitOn (head delims) values
     | (_,_,values,[delims]) <- input =~ "//(.)\n" :: (String, String, String,[String]) =  
         add' $ splitOneOf ('\n':delims) values
@@ -30,9 +29,9 @@ raiseError numbers =
     let string = intercalate ", " $ map show numbers
     in error $ "negatives not allowed ==> " ++ string
 
-extractDelims :: String -> String -> [String]
-extractDelims regex string =
-    map (\i -> i !! 1)  (string =~ regex :: [[String]])
+extractLongDelims :: String -> String -> [String]
+extractLongDelims regex string =
+    map (\i -> i !! 2)  (string =~ regex :: [[String]])
 
 
 -- map (\i -> i !! 1)  ("//[***]\n1***2***3" =~ "\\[(.*?)]" :: [[String]])
