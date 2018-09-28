@@ -42,3 +42,7 @@ main = hspec $ do
 
         it "allows using multiple long delimiters" $
             add "//[**][%%]\n1**2%%3" `shouldBe` 6
+        
+        it "allows multiple long delimiters with different lengths" $
+            add "//[**][%]\n1**2%4" `shouldBe` 7
+            

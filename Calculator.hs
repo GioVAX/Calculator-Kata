@@ -10,7 +10,7 @@ add input
     | "//[" `isPrefixOf` input = 
         let delims = extractLongDelims "(\\[(.*?)])+?" input
             values = (lines input) !! 1
-        in add' $ splitOn (head delims) values
+        in add' $ splitOnLongDelims delims values
     | (_,_,values,[delims]) <- input =~ "//(.)\n" :: (String, String, String,[String]) =  
         add' $ splitOneOf ('\n':delims) values
     | otherwise = add' $ splitOneOf "\n," input
@@ -33,6 +33,11 @@ extractLongDelims :: String -> String -> [String]
 extractLongDelims regex string =
     map (\i -> i !! 2)  (string =~ regex :: [[String]])
 
+
+splitOnLongDelims :: [String] -> String -> [String]
+splitOnLongDelims delims values
+    | [delim] <- delims =  splitOn delim values
+    | otherwise = foldl (\ values delim -> concat [splitOn delim v | v <- values]) [values] delims
 
 -- map (\i -> i !! 1)  ("//[***]\n1***2***3" =~ "\\[(.*?)]" :: [[String]])
 -- ["***"]
